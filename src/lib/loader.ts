@@ -160,20 +160,10 @@ async function fetchJson(url: string): Promise<unknown> {
   return res.json();
 }
 
-/** Load from a list of File objects (directory pick or drop). */
-export async function loadFromFiles(files: File[]): Promise<LoadedAssembly> {
-  const entries: { path: string; text: string }[] = [];
-  for (const file of files) {
-    // Only read text-ish files; skip obviously binary assets.
-    if (file.size > 25 * 1024 * 1024) continue;
-    const path = (file as File & { webkitRelativePath?: string }).webkitRelativePath || file.name;
-    try {
-      entries.push({ path, text: await file.text() });
-    } catch {
-      /* skip unreadable file */
-    }
-  }
-
+/** Build an assembly from already-read (path, text) pairs (browser or native). */
+export function loadFromEntries(
+  entries: { path: string; text: string }[],
+): LoadedAssembly {
   const { artifacts, sources } = assembleFromFiles(entries);
   if (!artifacts.tree && artifacts.templates.size === 0) {
     throw new Error(
@@ -190,6 +180,22 @@ export async function loadFromFiles(files: File[]): Promise<LoadedAssembly> {
         : `Loaded · ${artifacts.templates.size} template(s)`;
 
   return { model, sources, label };
+}
+
+/** Load from a list of File objects (directory pick or drop). */
+export async function loadFromFiles(files: File[]): Promise<LoadedAssembly> {
+  const entries: { path: string; text: string }[] = [];
+  for (const file of files) {
+    // Only read text-ish files; skip obviously binary assets.
+    if (file.size > 25 * 1024 * 1024) continue;
+    const path = (file as File & { webkitRelativePath?: string }).webkitRelativePath || file.name;
+    try {
+      entries.push({ path, text: await file.text() });
+    } catch {
+      /* skip unreadable file */
+    }
+  }
+  return loadFromEntries(entries);
 }
 
 export { emptySources };

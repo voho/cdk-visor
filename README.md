@@ -152,11 +152,41 @@ algorithms, search and highlighters; end-to-end tests (`e2e/`) drive the built
 app in a real browser. CI (`.github/workflows/ci.yml`) runs lint, type-check,
 unit tests, build and the Playwright e2e suite on every push and pull request.
 
+## Native macOS app
+
+cdk-visor can be packaged as a native macOS app with [Tauri](https://tauri.app),
+which wraps the same frontend in the system WebView (WKWebView) — a small
+(~5–15 MB) `.app`/`.dmg` rather than a bundled browser. The native build adds a
+real folder picker (reading the chosen directory in Rust, which sidesteps
+WebView file-access limits); drag-and-drop and the bundled demo work too.
+
+**Prerequisites** (on macOS):
+
+- [Rust](https://www.rust-lang.org/tools/install) (`rustup`)
+- Xcode Command Line Tools (`xcode-select --install`)
+
+**Run / build:**
+
+```bash
+npm install
+npm run tauri:dev      # launch the app in development (hot-reloads the frontend)
+npm run tauri:build    # produce a release .app + .dmg
+```
+
+The built app lands in `src-tauri/target/release/bundle/` (`macos/cdk-visor.app`
+and `dmg/cdk-visor_<version>_<arch>.dmg`). For a universal binary:
+`npm run tauri:build -- --target universal-apple-darwin`.
+
+> Distribution outside your own machine requires signing/notarizing with an
+> Apple Developer ID; see the Tauri macOS code-signing guide. The native shell
+> lives in `src-tauri/` (a small Rust crate); the web app is unchanged and still
+> runs in any browser.
+
 ## Tech
 
 Vite + React + TypeScript, no UI framework and no graph/layout libraries — the
 layout algorithms are implemented from scratch. All parsing and rendering
-happens client-side.
+happens client-side. The optional native shell is a thin Tauri (Rust) wrapper.
 
 ## License
 
