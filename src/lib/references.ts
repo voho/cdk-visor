@@ -123,12 +123,18 @@ function parseGetAtt(value: unknown): { logical?: string; attribute?: string } {
 
 function collectSub(value: unknown, edges: RawEdge[]): void {
   const template = Array.isArray(value) ? value[0] : value;
+  // Names declared in the variable map are local — they shadow logical ids.
+  const locals =
+    Array.isArray(value) && value[1] && typeof value[1] === "object"
+      ? new Set(Object.keys(value[1] as Record<string, unknown>))
+      : new Set<string>();
+
   if (typeof template === "string") {
     for (const match of template.matchAll(/\$\{([^}]+)\}/g)) {
       const token = match[1].trim();
       if (token.startsWith("!")) continue; // ${!Literal} — escaped, not a ref
       const [logical, ...rest] = token.split(".");
-      if (!logical || logical.startsWith("AWS::")) continue;
+      if (!logical || logical.startsWith("AWS::") || locals.has(logical)) continue;
       const attribute = rest.join(".") || undefined;
       edges.push({ to: logical, kind: attribute ? "GetAtt" : "Sub", attribute });
     }
@@ -141,7 +147,8 @@ function importName(value: unknown): string {
   return typeof value === "string" ? value : "(imported value)";
 }
 
-function toArray(value: string | string[] | undefined): string[] {
+/** Normalize an optional string-or-string-array (e.g. CloudFormation `DependsOn`). */
+export function toArray(value: string | string[] | undefined): string[] {
   if (!value) return [];
   return Array.isArray(value) ? value : [value];
 }

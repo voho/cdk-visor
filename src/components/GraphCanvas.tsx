@@ -1,4 +1,11 @@
-import { useCallback, useLayoutEffect, useMemo, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import type { VisorNode } from "@/lib/model";
 import { buildGraph } from "@/lib/graph";
 import { layout, LAYOUTS, type LayoutName, type Point } from "@/lib/layout";
@@ -34,6 +41,10 @@ export function GraphCanvas({
   const wrapRef = useRef<HTMLDivElement>(null);
   const [view, setView] = useState<Transform>({ x: 0, y: 0, k: 1 });
   const pan = useRef<{ x: number; y: number; vx: number; vy: number } | null>(null);
+  const stopPan = useRef<() => void>(() => {});
+
+  // Guarantee the drag listeners are removed if we unmount mid-pan.
+  useEffect(() => () => stopPan.current(), []);
 
   const graph = useMemo(() => buildGraph(focus), [focus]);
 
@@ -101,7 +112,9 @@ export function GraphCanvas({
       pan.current = null;
       window.removeEventListener("mousemove", move);
       window.removeEventListener("mouseup", up);
+      stopPan.current = () => {};
     };
+    stopPan.current = up;
     window.addEventListener("mousemove", move);
     window.addEventListener("mouseup", up);
   };

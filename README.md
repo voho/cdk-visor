@@ -141,13 +141,16 @@ public/demo/              # the generated demo (cdk.out + src)
 ```bash
 npm run dev          # dev server
 npm test             # run the unit tests (Vitest)
+npm run test:e2e     # run the end-to-end tests (Playwright)
 npm run lint         # ESLint
 npm run typecheck    # tsc --noEmit
 npm run build        # type-check + production build
 ```
 
-CI (`.github/workflows/ci.yml`) runs lint, type-check, tests and build on every
-push and pull request.
+Unit tests (`src/**/*.test.ts`) cover the model, reference graph, layout
+algorithms, search and highlighters; end-to-end tests (`e2e/`) drive the built
+app in a real browser. CI (`.github/workflows/ci.yml`) runs lint, type-check,
+unit tests, build and the Playwright e2e suite on every push and pull request.
 
 ## Tech
 

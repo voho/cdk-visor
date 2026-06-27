@@ -103,6 +103,16 @@ export default function App() {
     [ingest],
   );
 
+  const reloadDemo = useCallback(async () => {
+    setStatus("loading");
+    try {
+      ingest(await loadDemo());
+    } catch (e) {
+      setStatus("error");
+      setError(String((e as Error)?.message ?? e));
+    }
+  }, [ingest]);
+
   const model = assembly?.model ?? null;
 
   const focusNode: VisorNode | null = useMemo(() => {
@@ -137,7 +147,10 @@ export default function App() {
     const onKey = (e: KeyboardEvent) => {
       const target = e.target as HTMLElement;
       const typing =
-        target?.tagName === "INPUT" || target?.tagName === "TEXTAREA";
+        target?.tagName === "INPUT" ||
+        target?.tagName === "TEXTAREA" ||
+        target?.tagName === "SELECT" ||
+        target?.isContentEditable;
 
       if ((e.key === "k" && (e.metaKey || e.ctrlKey)) || (e.key === "/" && !typing)) {
         e.preventDefault();
@@ -225,15 +238,7 @@ export default function App() {
         label={assembly?.label}
         onSearch={() => setSearchOpen(true)}
         onPickDir={() => dirInputRef.current?.click()}
-        onLoadDemo={async () => {
-          setStatus("loading");
-          try {
-            ingest(await loadDemo());
-          } catch (e) {
-            setStatus("error");
-            setError(String((e as Error)?.message ?? e));
-          }
-        }}
+        onLoadDemo={reloadDemo}
         showTree={showTree}
         showInspector={showInspector}
         onToggleTree={() => setShowTree((v) => !v)}
@@ -272,15 +277,7 @@ export default function App() {
         <Welcome
           error={error}
           onPickDir={() => dirInputRef.current?.click()}
-          onLoadDemo={async () => {
-            setStatus("loading");
-            try {
-              ingest(await loadDemo());
-            } catch (e) {
-              setStatus("error");
-              setError(String((e as Error)?.message ?? e));
-            }
-          }}
+          onLoadDemo={reloadDemo}
         />
       )}
 

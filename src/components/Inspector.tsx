@@ -6,6 +6,7 @@ import { JsonBlock } from "@/components/JsonBlock";
 import { SourceView } from "@/components/SourceView";
 import { RelationsView } from "@/components/RelationsView";
 import { docsUrlFor } from "@/lib/docs";
+import { toArray } from "@/lib/references";
 
 type TabId =
   | "overview"
@@ -100,7 +101,7 @@ function Overview({
   onOpen: (n: VisorNode) => void;
 }) {
   const docs = docsUrlFor(node.constructInfo?.fqn);
-  const dependsOn = normalizeDependsOn(node.resource?.DependsOn);
+  const dependsOn = toArray(node.resource?.DependsOn);
   return (
     <div>
       <div className="kv">
@@ -305,11 +306,6 @@ function cfnProps(node: VisorNode): Record<string, unknown> | undefined {
   }
   if (node.resource?.Properties) return node.resource.Properties;
   return undefined;
-}
-
-function normalizeDependsOn(dep: string | string[] | undefined): string[] {
-  if (!dep) return [];
-  return Array.isArray(dep) ? dep : [dep];
 }
 
 function describeParameter(def: unknown): string {

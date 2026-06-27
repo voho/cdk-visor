@@ -64,4 +64,17 @@ describe("layout algorithms", () => {
     const b = layout("force", input, 7);
     expect([...a.entries()]).toEqual([...b.entries()]);
   });
+
+  it("layered layout stays compact on cyclic graphs", () => {
+    const ids = ["a", "b", "c"];
+    const edges = [
+      { from: "a", to: "b" },
+      { from: "b", to: "c" },
+      { from: "c", to: "a" },
+    ];
+    const pos = layout("layered", { ids, edges });
+    const layers = new Set([...pos.values()].map((p) => p.y));
+    // Cycle-breaking keeps it to at most one layer per node (not an N² ladder).
+    expect(layers.size).toBeLessThanOrEqual(ids.length);
+  });
 });

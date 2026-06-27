@@ -320,6 +320,17 @@ export function buildModel(raw: RawArtifacts): CdkModel {
   };
   rollup(root);
 
+  // A stack node should carry the same manifest artifact id its resources
+  // resolved to (resources get it from the manifest, the stack node only had
+  // its local tree id). This keeps the inspector's template lookup working even
+  // when the artifact id differs from the tree id — e.g. for stage-nested stacks.
+  for (const node of all) {
+    if (node.kind !== "resource" || !node.stackName) continue;
+    let ancestor = node.parent;
+    while (ancestor && ancestor.kind !== "stack") ancestor = ancestor.parent;
+    if (ancestor) ancestor.stackName = node.stackName;
+  }
+
   // Link resources to each other via their CloudFormation references.
   buildReferences(all);
 
