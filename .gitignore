@@ -107,3 +107,7 @@ dist
 /test-results/
 /playwright-report/
 /playwright/.cache/
+
+# Tauri
+/src-tauri/target/
+/src-tauri/gen/

@@ -1,9 +1,11 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   loadDemo,
+  loadFromEntries,
   loadFromFiles,
   type LoadedAssembly,
 } from "@/lib/loader";
+import { isTauri, openDirectoryNative } from "@/lib/tauri";
 import { ancestry, type VisorNode } from "@/lib/model";
 import { TopBar } from "@/components/TopBar";
 import { TreePanel } from "@/components/TreePanel";
@@ -107,6 +109,24 @@ export default function App() {
     setStatus("loading");
     try {
       ingest(await loadDemo());
+    } catch (e) {
+      setStatus("error");
+      setError(String((e as Error)?.message ?? e));
+    }
+  }, [ingest]);
+
+  // "Open project…": a native folder picker in the desktop app, the directory
+  // <input> in the browser.
+  const openProject = useCallback(async () => {
+    if (!isTauri()) {
+      dirInputRef.current?.click();
+      return;
+    }
+    try {
+      const entries = await openDirectoryNative();
+      if (!entries) return; // cancelled
+      setStatus("loading");
+      ingest(loadFromEntries(entries));
     } catch (e) {
       setStatus("error");
       setError(String((e as Error)?.message ?? e));
@@ -237,7 +257,7 @@ export default function App() {
       <TopBar
         label={assembly?.label}
         onSearch={() => setSearchOpen(true)}
-        onPickDir={() => dirInputRef.current?.click()}
+        onPickDir={openProject}
         onLoadDemo={reloadDemo}
         showTree={showTree}
         showInspector={showInspector}
@@ -276,7 +296,7 @@ export default function App() {
       {status === "error" && !model && (
         <Welcome
           error={error}
-          onPickDir={() => dirInputRef.current?.click()}
+          onPickDir={openProject}
           onLoadDemo={reloadDemo}
         />
       )}
