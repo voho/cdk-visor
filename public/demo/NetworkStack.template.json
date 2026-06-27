@@ -1,0 +1,95 @@
+{
+ "Resources": {
+  "ShopVpcE6F71D2A": {
+   "Type": "AWS::EC2::VPC",
+   "Properties": {
+    "CidrBlock": "10.0.0.0/16",
+    "EnableDnsHostnames": true,
+    "EnableDnsSupport": true,
+    "Tags": [
+     {
+      "Key": "Name",
+      "Value": "NetworkStack/ShopVpc"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "NetworkStack/ShopVpc/Resource"
+   }
+  },
+  "ShopVpcPublicSubnet1Subnet5C2D37C4": {
+   "Type": "AWS::EC2::Subnet",
+   "Properties": {
+    "CidrBlock": "10.0.0.0/18",
+    "VpcId": {
+     "Ref": "ShopVpcE6F71D2A"
+    },
+    "MapPublicIpOnLaunch": true,
+    "AvailabilityZone": "eu-central-1a"
+   },
+   "Metadata": {
+    "aws:cdk:path": "NetworkStack/ShopVpc/PublicSubnet1/Subnet"
+   }
+  },
+  "ShopVpcPublicSubnet1RouteTable6C95E38E": {
+   "Type": "AWS::EC2::RouteTable",
+   "Properties": {
+    "VpcId": {
+     "Ref": "ShopVpcE6F71D2A"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "NetworkStack/ShopVpc/PublicSubnet1/RouteTable"
+   }
+  },
+  "ShopVpcPrivateSubnet1Subnet5B6ADF1D": {
+   "Type": "AWS::EC2::Subnet",
+   "Properties": {
+    "CidrBlock": "10.0.128.0/18",
+    "VpcId": {
+     "Ref": "ShopVpcE6F71D2A"
+    },
+    "MapPublicIpOnLaunch": false,
+    "AvailabilityZone": "eu-central-1a"
+   },
+   "Metadata": {
+    "aws:cdk:path": "NetworkStack/ShopVpc/PrivateSubnet1/Subnet"
+   }
+  },
+  "ShopVpcIGWB7A2F1C9": {
+   "Type": "AWS::EC2::InternetGateway",
+   "Properties": {
+    "Tags": [
+     {
+      "Key": "Name",
+      "Value": "NetworkStack/ShopVpc"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "NetworkStack/ShopVpc/IGW"
+   }
+  },
+  "ApiSecurityGroupAFC9D5B2": {
+   "Type": "AWS::EC2::SecurityGroup",
+   "Properties": {
+    "GroupDescription": "Allow inbound HTTPS to the API tier",
+    "VpcId": {
+     "Ref": "ShopVpcE6F71D2A"
+    },
+    "SecurityGroupIngress": [
+     {
+      "CidrIp": "0.0.0.0/0",
+      "FromPort": 443,
+      "ToPort": 443,
+      "IpProtocol": "tcp"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "NetworkStack/ApiSecurityGroup/Resource"
+   }
+  }
+ },
+ "Outputs": {}
+}

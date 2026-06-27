@@ -1,0 +1,545 @@
+{
+ "version": "tree-0.1",
+ "tree": {
+  "id": "App",
+  "path": "",
+  "constructInfo": {
+   "fqn": "aws-cdk-lib.App",
+   "version": "2.150.0"
+  },
+  "children": {
+   "NetworkStack": {
+    "id": "NetworkStack",
+    "path": "NetworkStack",
+    "constructInfo": {
+     "fqn": "aws-cdk-lib.Stack",
+     "version": "2.150.0"
+    },
+    "children": {
+     "ShopVpc": {
+      "id": "ShopVpc",
+      "path": "NetworkStack/ShopVpc",
+      "constructInfo": {
+       "fqn": "aws-cdk-lib.aws_ec2.Vpc",
+       "version": "2.150.0"
+      },
+      "children": {
+       "Resource": {
+        "id": "Resource",
+        "path": "NetworkStack/ShopVpc/Resource",
+        "attributes": {
+         "aws:cdk:cloudformation:type": "AWS::EC2::VPC",
+         "aws:cdk:cloudformation:props": {
+          "CidrBlock": "10.0.0.0/16",
+          "EnableDnsHostnames": true,
+          "EnableDnsSupport": true,
+          "Tags": [
+           {
+            "Key": "Name",
+            "Value": "NetworkStack/ShopVpc"
+           }
+          ]
+         }
+        },
+        "constructInfo": {
+         "fqn": "aws-cdk-lib.aws_ec2.CfnVPC",
+         "version": "2.150.0"
+        }
+       },
+       "PublicSubnet1": {
+        "id": "PublicSubnet1",
+        "path": "NetworkStack/ShopVpc/PublicSubnet1",
+        "constructInfo": {
+         "fqn": "aws-cdk-lib.aws_ec2.PublicSubnet",
+         "version": "2.150.0"
+        },
+        "children": {
+         "Subnet": {
+          "id": "Subnet",
+          "path": "NetworkStack/ShopVpc/PublicSubnet1/Subnet",
+          "attributes": {
+           "aws:cdk:cloudformation:type": "AWS::EC2::Subnet",
+           "aws:cdk:cloudformation:props": {
+            "CidrBlock": "10.0.0.0/18",
+            "VpcId": {
+             "Ref": "ShopVpcE6F71D2A"
+            },
+            "MapPublicIpOnLaunch": true,
+            "AvailabilityZone": "eu-central-1a"
+           }
+          },
+          "constructInfo": {
+           "fqn": "aws-cdk-lib.aws_ec2.CfnSubnet",
+           "version": "2.150.0"
+          }
+         },
+         "RouteTable": {
+          "id": "RouteTable",
+          "path": "NetworkStack/ShopVpc/PublicSubnet1/RouteTable",
+          "attributes": {
+           "aws:cdk:cloudformation:type": "AWS::EC2::RouteTable",
+           "aws:cdk:cloudformation:props": {
+            "VpcId": {
+             "Ref": "ShopVpcE6F71D2A"
+            }
+           }
+          },
+          "constructInfo": {
+           "fqn": "aws-cdk-lib.aws_ec2.CfnRouteTable",
+           "version": "2.150.0"
+          }
+         }
+        }
+       },
+       "PrivateSubnet1": {
+        "id": "PrivateSubnet1",
+        "path": "NetworkStack/ShopVpc/PrivateSubnet1",
+        "constructInfo": {
+         "fqn": "aws-cdk-lib.aws_ec2.PrivateSubnet",
+         "version": "2.150.0"
+        },
+        "children": {
+         "Subnet": {
+          "id": "Subnet",
+          "path": "NetworkStack/ShopVpc/PrivateSubnet1/Subnet",
+          "attributes": {
+           "aws:cdk:cloudformation:type": "AWS::EC2::Subnet",
+           "aws:cdk:cloudformation:props": {
+            "CidrBlock": "10.0.128.0/18",
+            "VpcId": {
+             "Ref": "ShopVpcE6F71D2A"
+            },
+            "MapPublicIpOnLaunch": false,
+            "AvailabilityZone": "eu-central-1a"
+           }
+          },
+          "constructInfo": {
+           "fqn": "aws-cdk-lib.aws_ec2.CfnSubnet",
+           "version": "2.150.0"
+          }
+         }
+        }
+       },
+       "IGW": {
+        "id": "IGW",
+        "path": "NetworkStack/ShopVpc/IGW",
+        "attributes": {
+         "aws:cdk:cloudformation:type": "AWS::EC2::InternetGateway",
+         "aws:cdk:cloudformation:props": {
+          "Tags": [
+           {
+            "Key": "Name",
+            "Value": "NetworkStack/ShopVpc"
+           }
+          ]
+         }
+        },
+        "constructInfo": {
+         "fqn": "aws-cdk-lib.aws_ec2.CfnInternetGateway",
+         "version": "2.150.0"
+        }
+       }
+      }
+     },
+     "ApiSecurityGroup": {
+      "id": "ApiSecurityGroup",
+      "path": "NetworkStack/ApiSecurityGroup",
+      "constructInfo": {
+       "fqn": "aws-cdk-lib.aws_ec2.SecurityGroup",
+       "version": "2.150.0"
+      },
+      "children": {
+       "Resource": {
+        "id": "Resource",
+        "path": "NetworkStack/ApiSecurityGroup/Resource",
+        "attributes": {
+         "aws:cdk:cloudformation:type": "AWS::EC2::SecurityGroup",
+         "aws:cdk:cloudformation:props": {
+          "GroupDescription": "Allow inbound HTTPS to the API tier",
+          "VpcId": {
+           "Ref": "ShopVpcE6F71D2A"
+          },
+          "SecurityGroupIngress": [
+           {
+            "CidrIp": "0.0.0.0/0",
+            "FromPort": 443,
+            "ToPort": 443,
+            "IpProtocol": "tcp"
+           }
+          ]
+         }
+        },
+        "constructInfo": {
+         "fqn": "aws-cdk-lib.aws_ec2.CfnSecurityGroup",
+         "version": "2.150.0"
+        }
+       }
+      }
+     }
+    }
+   },
+   "ApiStack": {
+    "id": "ApiStack",
+    "path": "ApiStack",
+    "constructInfo": {
+     "fqn": "aws-cdk-lib.Stack",
+     "version": "2.150.0"
+    },
+    "children": {
+     "OrdersTable": {
+      "id": "OrdersTable",
+      "path": "ApiStack/OrdersTable",
+      "constructInfo": {
+       "fqn": "aws-cdk-lib.aws_dynamodb.Table",
+       "version": "2.150.0"
+      },
+      "children": {
+       "Resource": {
+        "id": "Resource",
+        "path": "ApiStack/OrdersTable/Resource",
+        "attributes": {
+         "aws:cdk:cloudformation:type": "AWS::DynamoDB::Table",
+         "aws:cdk:cloudformation:props": {
+          "KeySchema": [
+           {
+            "AttributeName": "orderId",
+            "KeyType": "HASH"
+           }
+          ],
+          "AttributeDefinitions": [
+           {
+            "AttributeName": "orderId",
+            "AttributeType": "S"
+           }
+          ],
+          "BillingMode": "PAY_PER_REQUEST"
+         }
+        },
+        "constructInfo": {
+         "fqn": "aws-cdk-lib.aws_dynamodb.CfnTable",
+         "version": "2.150.0"
+        }
+       }
+      }
+     },
+     "AssetsBucket": {
+      "id": "AssetsBucket",
+      "path": "ApiStack/AssetsBucket",
+      "constructInfo": {
+       "fqn": "aws-cdk-lib.aws_s3.Bucket",
+       "version": "2.150.0"
+      },
+      "children": {
+       "Resource": {
+        "id": "Resource",
+        "path": "ApiStack/AssetsBucket/Resource",
+        "attributes": {
+         "aws:cdk:cloudformation:type": "AWS::S3::Bucket",
+         "aws:cdk:cloudformation:props": {
+          "VersioningConfiguration": {
+           "Status": "Enabled"
+          },
+          "BucketEncryption": {
+           "ServerSideEncryptionConfiguration": [
+            {
+             "ServerSideEncryptionByDefault": {
+              "SSEAlgorithm": "AES256"
+             }
+            }
+           ]
+          }
+         }
+        },
+        "constructInfo": {
+         "fqn": "aws-cdk-lib.aws_s3.CfnBucket",
+         "version": "2.150.0"
+        }
+       }
+      }
+     },
+     "OrderHandler": {
+      "id": "OrderHandler",
+      "path": "ApiStack/OrderHandler",
+      "constructInfo": {
+       "fqn": "aws-cdk-lib.aws_lambda.Function",
+       "version": "2.150.0"
+      },
+      "children": {
+       "ServiceRole": {
+        "id": "ServiceRole",
+        "path": "ApiStack/OrderHandler/ServiceRole",
+        "constructInfo": {
+         "fqn": "aws-cdk-lib.aws_iam.Role",
+         "version": "2.150.0"
+        },
+        "children": {
+         "Resource": {
+          "id": "Resource",
+          "path": "ApiStack/OrderHandler/ServiceRole/Resource",
+          "attributes": {
+           "aws:cdk:cloudformation:type": "AWS::IAM::Role",
+           "aws:cdk:cloudformation:props": {
+            "AssumeRolePolicyDocument": {
+             "Version": "2012-10-17",
+             "Statement": [
+              {
+               "Action": "sts:AssumeRole",
+               "Effect": "Allow",
+               "Principal": {
+                "Service": "lambda.amazonaws.com"
+               }
+              }
+             ]
+            },
+            "ManagedPolicyArns": [
+             "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+            ]
+           }
+          },
+          "constructInfo": {
+           "fqn": "aws-cdk-lib.aws_iam.CfnRole",
+           "version": "2.150.0"
+          }
+         }
+        }
+       },
+       "Resource": {
+        "id": "Resource",
+        "path": "ApiStack/OrderHandler/Resource",
+        "attributes": {
+         "aws:cdk:cloudformation:type": "AWS::Lambda::Function",
+         "aws:cdk:cloudformation:props": {
+          "Runtime": "nodejs20.x",
+          "Handler": "index.handler",
+          "Timeout": 10,
+          "Code": {
+           "ZipFile": "exports.handler = async () => ({ statusCode: 200 });"
+          },
+          "Role": {
+           "Fn::GetAtt": [
+            "OrderHandlerServiceRole8E8B448D",
+            "Arn"
+           ]
+          },
+          "Environment": {
+           "Variables": {
+            "TABLE_NAME": {
+             "Ref": "OrdersTable315BB997"
+            },
+            "ASSETS_BUCKET": {
+             "Ref": "AssetsBucket1B2C3D4E"
+            }
+           }
+          }
+         }
+        },
+        "constructInfo": {
+         "fqn": "aws-cdk-lib.aws_lambda.CfnFunction",
+         "version": "2.150.0"
+        }
+       }
+      }
+     },
+     "OrdersApi": {
+      "id": "OrdersApi",
+      "path": "ApiStack/OrdersApi",
+      "constructInfo": {
+       "fqn": "aws-cdk-lib.aws_apigateway.RestApi",
+       "version": "2.150.0"
+      },
+      "children": {
+       "Resource": {
+        "id": "Resource",
+        "path": "ApiStack/OrdersApi/Resource",
+        "attributes": {
+         "aws:cdk:cloudformation:type": "AWS::ApiGateway::RestApi",
+         "aws:cdk:cloudformation:props": {
+          "Name": "Orders Service"
+         }
+        },
+        "constructInfo": {
+         "fqn": "aws-cdk-lib.aws_apigateway.CfnRestApi",
+         "version": "2.150.0"
+        }
+       },
+       "Deployment": {
+        "id": "Deployment",
+        "path": "ApiStack/OrdersApi/Deployment",
+        "constructInfo": {
+         "fqn": "aws-cdk-lib.aws_apigateway.Deployment",
+         "version": "2.150.0"
+        },
+        "children": {
+         "Resource": {
+          "id": "Resource",
+          "path": "ApiStack/OrdersApi/Deployment/Resource",
+          "attributes": {
+           "aws:cdk:cloudformation:type": "AWS::ApiGateway::Deployment",
+           "aws:cdk:cloudformation:props": {
+            "RestApiId": {
+             "Ref": "OrdersApiC1A2B3D4"
+            },
+            "Description": "Automatically created by the RestApi construct"
+           }
+          },
+          "constructInfo": {
+           "fqn": "aws-cdk-lib.aws_apigateway.CfnDeployment",
+           "version": "2.150.0"
+          }
+         }
+        }
+       },
+       "DeploymentStage.prod": {
+        "id": "DeploymentStage.prod",
+        "path": "ApiStack/OrdersApi/DeploymentStage.prod",
+        "constructInfo": {
+         "fqn": "aws-cdk-lib.aws_apigateway.Stage",
+         "version": "2.150.0"
+        },
+        "children": {
+         "Resource": {
+          "id": "Resource",
+          "path": "ApiStack/OrdersApi/DeploymentStage.prod/Resource",
+          "attributes": {
+           "aws:cdk:cloudformation:type": "AWS::ApiGateway::Stage",
+           "aws:cdk:cloudformation:props": {
+            "RestApiId": {
+             "Ref": "OrdersApiC1A2B3D4"
+            },
+            "DeploymentId": {
+             "Ref": "OrdersApiDeploymentE5F6A7B8"
+            },
+            "StageName": "prod"
+           }
+          },
+          "constructInfo": {
+           "fqn": "aws-cdk-lib.aws_apigateway.CfnStage",
+           "version": "2.150.0"
+          }
+         }
+        }
+       },
+       "orders": {
+        "id": "orders",
+        "path": "ApiStack/OrdersApi/orders",
+        "constructInfo": {
+         "fqn": "aws-cdk-lib.aws_apigateway.Resource",
+         "version": "2.150.0"
+        },
+        "children": {
+         "Resource": {
+          "id": "Resource",
+          "path": "ApiStack/OrdersApi/orders/Resource",
+          "attributes": {
+           "aws:cdk:cloudformation:type": "AWS::ApiGateway::Resource",
+           "aws:cdk:cloudformation:props": {
+            "ParentId": {
+             "Fn::GetAtt": [
+              "OrdersApiC1A2B3D4",
+              "RootResourceId"
+             ]
+            },
+            "PathPart": "orders",
+            "RestApiId": {
+             "Ref": "OrdersApiC1A2B3D4"
+            }
+           }
+          },
+          "constructInfo": {
+           "fqn": "aws-cdk-lib.aws_apigateway.CfnResource",
+           "version": "2.150.0"
+          }
+         },
+         "GET": {
+          "id": "GET",
+          "path": "ApiStack/OrdersApi/orders/GET",
+          "constructInfo": {
+           "fqn": "aws-cdk-lib.aws_apigateway.Method",
+           "version": "2.150.0"
+          },
+          "children": {
+           "Resource": {
+            "id": "Resource",
+            "path": "ApiStack/OrdersApi/orders/GET/Resource",
+            "attributes": {
+             "aws:cdk:cloudformation:type": "AWS::ApiGateway::Method",
+             "aws:cdk:cloudformation:props": {
+              "HttpMethod": "GET",
+              "ResourceId": {
+               "Ref": "OrdersApiordersA1B2C3D4"
+              },
+              "RestApiId": {
+               "Ref": "OrdersApiC1A2B3D4"
+              },
+              "AuthorizationType": "NONE",
+              "Integration": {
+               "Type": "AWS_PROXY",
+               "IntegrationHttpMethod": "POST",
+               "Uri": {
+                "Fn::Sub": "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${OrderHandler9F8E7D6C.Arn}/invocations"
+               }
+              }
+             }
+            },
+            "constructInfo": {
+             "fqn": "aws-cdk-lib.aws_apigateway.CfnMethod",
+             "version": "2.150.0"
+            }
+           }
+          }
+         },
+         "POST": {
+          "id": "POST",
+          "path": "ApiStack/OrdersApi/orders/POST",
+          "constructInfo": {
+           "fqn": "aws-cdk-lib.aws_apigateway.Method",
+           "version": "2.150.0"
+          },
+          "children": {
+           "Resource": {
+            "id": "Resource",
+            "path": "ApiStack/OrdersApi/orders/POST/Resource",
+            "attributes": {
+             "aws:cdk:cloudformation:type": "AWS::ApiGateway::Method",
+             "aws:cdk:cloudformation:props": {
+              "HttpMethod": "POST",
+              "ResourceId": {
+               "Ref": "OrdersApiordersA1B2C3D4"
+              },
+              "RestApiId": {
+               "Ref": "OrdersApiC1A2B3D4"
+              },
+              "AuthorizationType": "NONE",
+              "Integration": {
+               "Type": "AWS_PROXY",
+               "IntegrationHttpMethod": "POST",
+               "Uri": {
+                "Fn::Sub": "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${OrderHandler9F8E7D6C.Arn}/invocations"
+               }
+              }
+             }
+            },
+            "constructInfo": {
+             "fqn": "aws-cdk-lib.aws_apigateway.CfnMethod",
+             "version": "2.150.0"
+            }
+           }
+          }
+         }
+        }
+       }
+      }
+     }
+    }
+   },
+   "Tree": {
+    "id": "Tree",
+    "path": "Tree",
+    "constructInfo": {
+     "fqn": "constructs.Construct",
+     "version": "10.3.0"
+    }
+   }
+  }
+ }
+}
