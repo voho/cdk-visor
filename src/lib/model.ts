@@ -13,8 +13,25 @@ import type {
   TreeManifest,
   TreeNode,
 } from "@/types/cdk";
+import { buildReferences } from "@/lib/references";
 
 export type NodeKind = "app" | "stage" | "stack" | "construct" | "resource";
+
+/** How one resource refers to another in a CloudFormation template. */
+export type RefKind = "Ref" | "GetAtt" | "Sub" | "DependsOn" | "Import";
+
+/** A resolved reference edge between two resources (or to an external import). */
+export interface ResolvedRef {
+  kind: RefKind;
+  /** Attribute name for `Fn::GetAtt` references. */
+  attribute?: string;
+  /** True when the target lives outside this assembly (e.g. `Fn::ImportValue`). */
+  external: boolean;
+  /** The resolved node, when the reference points within the assembly. */
+  node?: VisorNode;
+  /** The target/source logical id or import name (always present). */
+  name: string;
+}
 
 /** A single frame of a captured source trace. */
 export interface TraceFrame {
@@ -51,6 +68,11 @@ export interface VisorNode {
 
   parent?: VisorNode;
   children: VisorNode[];
+
+  /** Outgoing CloudFormation references (this resource → others). */
+  referencesOut: ResolvedRef[];
+  /** Incoming CloudFormation references (others → this resource). */
+  referencesIn: ResolvedRef[];
 
   /** Aggregate counts, precomputed for the UI. */
   descendantCount: number;
@@ -253,6 +275,8 @@ export function buildModel(raw: RawArtifacts): CdkModel {
       metadata,
       parent,
       children: [],
+      referencesOut: [],
+      referencesIn: [],
       descendantCount: 0,
       resourceCount: 0,
     };
@@ -296,6 +320,9 @@ export function buildModel(raw: RawArtifacts): CdkModel {
   };
   rollup(root);
 
+  // Link resources to each other via their CloudFormation references.
+  buildReferences(all);
+
   return {
     root,
     index,
@@ -322,6 +349,8 @@ function synthesizeRootFromTemplates(
     traces: [],
     metadata: [],
     children: [],
+    referencesOut: [],
+    referencesIn: [],
     descendantCount: 0,
     resourceCount: 0,
   };
@@ -340,6 +369,8 @@ function synthesizeRootFromTemplates(
       metadata: [],
       parent: root,
       children: [],
+      referencesOut: [],
+      referencesIn: [],
       descendantCount: 0,
       resourceCount: 0,
     };
@@ -362,6 +393,8 @@ function synthesizeRootFromTemplates(
         metadata: [],
         parent: stackNode,
         children: [],
+        referencesOut: [],
+        referencesIn: [],
         descendantCount: 0,
         resourceCount: 0,
       };

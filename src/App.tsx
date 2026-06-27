@@ -7,11 +7,25 @@ import {
 import { ancestry, type VisorNode } from "@/lib/model";
 import { TopBar } from "@/components/TopBar";
 import { TreePanel } from "@/components/TreePanel";
-import { Canvas } from "@/components/Canvas";
+import { Canvas, type ViewMode } from "@/components/Canvas";
 import { Inspector } from "@/components/Inspector";
 import { SearchOverlay } from "@/components/SearchOverlay";
 import { Welcome } from "@/components/Welcome";
+import { Resizer } from "@/components/Resizer";
 import { filesFromDataTransfer } from "@/lib/dnd";
+import { useResizable } from "@/lib/useResizable";
+import { formatHash, parseHash } from "@/lib/url";
+
+const usePersistentToggle = (key: string, initial: boolean) => {
+  const [on, setOn] = useState<boolean>(() => {
+    const stored = localStorage.getItem(key);
+    return stored === null ? initial : stored === "1";
+  });
+  useEffect(() => {
+    localStorage.setItem(key, on ? "1" : "0");
+  }, [key, on]);
+  return [on, setOn] as const;
+};
 
 type Status = "loading" | "ready" | "error";
 
@@ -24,26 +38,46 @@ export default function App() {
   const [selectedPath, setSelectedPath] = useState<string>("");
 
   const [searchOpen, setSearchOpen] = useState(false);
-  const [showTree, setShowTree] = useState(true);
-  const [showInspector, setShowInspector] = useState(true);
+  const [viewMode, setViewMode] = useState<ViewMode>(
+    () => (localStorage.getItem("visor.viewMode") as ViewMode) || "cards",
+  );
+  const [showTree, setShowTree] = usePersistentToggle("visor.showTree", true);
+  const [showInspector, setShowInspector] = usePersistentToggle(
+    "visor.showInspector",
+    true,
+  );
   const [dragging, setDragging] = useState(false);
 
+  const tree = useResizable("visor.treeWidth", 290, 200, 520, "right");
+  const inspector = useResizable("visor.inspectorWidth", 420, 300, 720, "left");
+
   const dirInputRef = useRef<HTMLInputElement>(null);
+  const lastFocus = useRef<string>("");
 
-  const ingest = useCallback((next: LoadedAssembly) => {
-    setAssembly(next);
-    setStatus("ready");
-    setError("");
-    setFocusPath(next.model.root.path);
-    setSelectedPath(next.model.root.path);
-  }, []);
+  const ingest = useCallback(
+    (next: LoadedAssembly, honorHash = false) => {
+      setAssembly(next);
+      setStatus("ready");
+      setError("");
 
-  // Auto-load the bundled demo on first paint.
+      const idx = next.model.index;
+      const hash = honorHash ? parseHash() : null;
+      const focus = hash && idx.has(hash.focus) ? hash.focus : next.model.root.path;
+      const selected =
+        hash && idx.has(hash.selected) ? hash.selected : focus;
+      lastFocus.current = focus;
+      setFocusPath(focus);
+      setSelectedPath(selected);
+    },
+    [],
+  );
+
+  // Auto-load the bundled demo on first paint (honoring a shared URL).
   useEffect(() => {
     let alive = true;
     loadDemo()
       .then((a) => {
-        if (alive) ingest(a);
+        if (alive) ingest(a, true);
       })
       .catch((e) => {
         if (alive) {
@@ -136,6 +170,34 @@ export default function App() {
     return () => window.removeEventListener("keydown", onKey);
   }, [searchOpen, focusNode, selectedPath, goUp, select, open]);
 
+  // Reflect the current view in the URL hash. Drilling (a focus change) pushes a
+  // history entry so back/forward step through navigation; selection replaces.
+  useEffect(() => {
+    if (!model) return;
+    const desired = formatHash({ focus: focusPath, selected: selectedPath });
+    if (window.location.hash === desired) return;
+    if (focusPath !== lastFocus.current) {
+      window.history.pushState(null, "", desired);
+    } else {
+      window.history.replaceState(null, "", desired);
+    }
+    lastFocus.current = focusPath;
+  }, [model, focusPath, selectedPath]);
+
+  // Apply back/forward navigation from the URL.
+  useEffect(() => {
+    if (!model) return;
+    const onPop = () => {
+      const state = parseHash();
+      if (!state) return;
+      if (model.index.has(state.focus)) setFocusPath(state.focus);
+      if (model.index.has(state.selected)) setSelectedPath(state.selected);
+      lastFocus.current = state.focus;
+    };
+    window.addEventListener("popstate", onPop);
+    return () => window.removeEventListener("popstate", onPop);
+  }, [model]);
+
   // Window-level drag & drop of a cdk.out / project directory.
   const onDrop = useCallback(
     async (e: React.DragEvent) => {
@@ -225,32 +287,45 @@ export default function App() {
       {model && focusNode && selectedNode && (
         <div className="body">
           {showTree && (
-            <TreePanel
-              root={model.root}
-              selectedPath={selectedPath}
-              focusPath={focusPath}
-              onSelect={select}
-              onOpen={open}
-            />
+            <>
+              <TreePanel
+                root={model.root}
+                selectedPath={selectedPath}
+                focusPath={focusPath}
+                width={tree.width}
+                onSelect={select}
+                onOpen={open}
+              />
+              <Resizer onDragStart={tree.onDragStart} />
+            </>
           )}
           <Canvas
             focusNode={focusNode}
             crumbs={ancestry(focusNode)}
             selectedPath={selectedPath}
+            viewMode={viewMode}
             onSelect={select}
             onOpen={open}
             onCrumb={(n) => {
               setFocusPath(n.path);
               setSelectedPath(n.path);
             }}
+            onViewMode={(m) => {
+              setViewMode(m);
+              localStorage.setItem("visor.viewMode", m);
+            }}
           />
           {showInspector && assembly && (
-            <Inspector
-              node={selectedNode}
-              model={model}
-              sources={assembly.sources}
-              onOpen={open}
-            />
+            <>
+              <Resizer onDragStart={inspector.onDragStart} />
+              <Inspector
+                node={selectedNode}
+                model={model}
+                sources={assembly.sources}
+                width={inspector.width}
+                onOpen={open}
+              />
+            </>
           )}
         </div>
       )}

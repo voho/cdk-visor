@@ -17,15 +17,23 @@ navigable model:
 
 - **Browse the construct tree** from the `App` root down to leaf resources, in a
   clean breadcrumbed canvas or the collapsible tree explorer.
+- **Visualize relationships as a graph** — render the current level as an
+  auto-laid-out diagram of nodes and their CloudFormation references, with four
+  layout algorithms (hierarchical, force-directed, circular, grid), pan/zoom and
+  click-to-drill.
 - **Inspect any node** — its construct class (jsii fqn), logical id, properties,
   dependencies, and aggregate resource counts.
+- **Trace references** — for any resource, see what it references and what
+  references it (`Ref`, `Fn::GetAtt`, `Fn::Sub`, `DependsOn`, `Fn::ImportValue`),
+  each link click-through navigable.
 - **Drop down to CloudFormation** — see the exact synthesized resource (or, for
-  a stack, the full template with resource/parameter/output counts).
+  a stack, the full template with readable parameters and outputs).
 - **Jump to source** — when the assembly was synthesized with traces enabled,
   every resource links back to the line of CDK code that created it, with inline
   syntax highlighting.
 - **Search everything** (`⌘K` / `Ctrl-K`) by name, path, CloudFormation type, or
-  logical id.
+  logical id, **filter** the tree, resize the panels, and share the exact view
+  via the URL.
 
 It ships with a built-in demo app (`ShopApp`) so you can try it immediately.
 
@@ -99,6 +107,11 @@ The result is a single `VisorNode` tree where every node knows its children, its
 CloudFormation output, and where it came from. If a `tree.json` is missing,
 cdk-visor still works by reconstructing a tree from the templates alone.
 
+The reference graph (`src/lib/references.ts`) is derived from the same templates
+by extracting CloudFormation intrinsics, and the graph view aggregates those
+edges up to whichever level you're browsing — so the diagram is meaningful for a
+whole stack or the internals of a single construct.
+
 ### Project layout
 
 ```
@@ -106,22 +119,41 @@ src/
 ├── types/cdk.ts          # types for the cloud-assembly artifacts
 ├── lib/
 │   ├── model.ts          # buildModel(): the unified, enriched construct tree
+│   ├── references.ts     # resource-to-resource reference graph
+│   ├── graph.ts          # aggregate references into a per-level graph
+│   ├── layout.ts         # auto-layout algorithms (layered/force/circular/grid)
 │   ├── loader.ts         # load demo / directory / drag-drop + source resolution
 │   ├── search.ts         # ranked search over the model
 │   ├── icons.ts          # CFN type → badge label + color
 │   ├── highlight.ts      # tiny JSON + TS syntax highlighters
+│   ├── url.ts            # shareable view state in the URL hash
 │   ├── docs.ts           # jsii fqn → AWS CDK docs URL
-│   └── dnd.ts            # recursive directory drag & drop
-├── components/           # TopBar, TreePanel, Canvas, Inspector, SearchOverlay…
+│   ├── dnd.ts            # recursive directory drag & drop
+│   └── *.test.ts         # unit tests (Vitest)
+├── components/           # TopBar, TreePanel, Canvas, GraphCanvas, Inspector…
 └── App.tsx               # state + navigation orchestration
 scripts/gen-demo.mjs      # generates the bundled demo cloud assembly + sources
 public/demo/              # the generated demo (cdk.out + src)
 ```
 
+## Development
+
+```bash
+npm run dev          # dev server
+npm test             # run the unit tests (Vitest)
+npm run lint         # ESLint
+npm run typecheck    # tsc --noEmit
+npm run build        # type-check + production build
+```
+
+CI (`.github/workflows/ci.yml`) runs lint, type-check, tests and build on every
+push and pull request.
+
 ## Tech
 
-Vite + React + TypeScript, no UI framework — just a small, dependency-light
-codebase. All parsing and rendering happens client-side.
+Vite + React + TypeScript, no UI framework and no graph/layout libraries — the
+layout algorithms are implemented from scratch. All parsing and rendering
+happens client-side.
 
 ## License
 

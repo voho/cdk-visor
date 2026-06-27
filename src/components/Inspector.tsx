@@ -4,19 +4,28 @@ import type { SourceProvider } from "@/lib/loader";
 import { Badge } from "@/components/Badge";
 import { JsonBlock } from "@/components/JsonBlock";
 import { SourceView } from "@/components/SourceView";
+import { RelationsView } from "@/components/RelationsView";
 import { docsUrlFor } from "@/lib/docs";
 
-type TabId = "overview" | "properties" | "cfn" | "source" | "metadata";
+type TabId =
+  | "overview"
+  | "properties"
+  | "cfn"
+  | "relations"
+  | "source"
+  | "metadata";
 
 export function Inspector({
   node,
   model,
   sources,
+  width,
   onOpen,
 }: {
   node: VisorNode;
   model: CdkModel;
   sources: SourceProvider;
+  width: number;
   onOpen: (n: VisorNode) => void;
 }) {
   const props = useMemo(() => cfnProps(node), [node]);
@@ -32,6 +41,10 @@ export function Inspector({
     if (node.resource || (node.kind === "stack" && template)) {
       list.push({ id: "cfn", label: "CloudFormation" });
     }
+    const refCount = node.referencesOut.length + node.referencesIn.length;
+    if (refCount > 0) {
+      list.push({ id: "relations", label: "Relations", count: refCount });
+    }
     list.push({ id: "source", label: "Source", count: node.traces.length || undefined });
     list.push({ id: "metadata", label: "Metadata", count: node.metadata.length || undefined });
     return list;
@@ -41,7 +54,7 @@ export function Inspector({
   const activeTab = tabs.some((t) => t.id === tab) ? tab : "overview";
 
   return (
-    <div className="panel inspector">
+    <div className="panel inspector" style={{ width }}>
       <div className="insp-head">
         <div className="row">
           <Badge kind={node.kind} cfnType={node.cfnType} large />
@@ -68,6 +81,9 @@ export function Inspector({
         {activeTab === "properties" && <JsonBlock value={props} />}
         {activeTab === "cfn" && (
           <CfnTab node={node} template={template} />
+        )}
+        {activeTab === "relations" && (
+          <RelationsView node={node} onOpen={onOpen} />
         )}
         {activeTab === "source" && <SourceView node={node} sources={sources} />}
         {activeTab === "metadata" && <MetadataTab node={node} />}
@@ -137,6 +153,14 @@ function Overview({
         <div className="k">Resources</div>
         <div className="v">{node.resourceCount}</div>
       </div>
+      {(node.referencesOut.length > 0 || node.referencesIn.length > 0) && (
+        <div className="kv">
+          <div className="k">References</div>
+          <div className="v">
+            {node.referencesOut.length} out · {node.referencesIn.length} in
+          </div>
+        </div>
+      )}
 
       {node.parent && (
         <>
@@ -211,6 +235,8 @@ function CfnTab({
       Conditions: Object.keys(template.Conditions ?? {}).length,
       Mappings: Object.keys(template.Mappings ?? {}).length,
     };
+    const outputs = Object.entries(template.Outputs ?? {});
+    const params = Object.entries(template.Parameters ?? {});
     return (
       <div>
         {Object.entries(counts).map(([k, v]) => (
@@ -219,6 +245,28 @@ function CfnTab({
             <div className="v">{v}</div>
           </div>
         ))}
+        {params.length > 0 && (
+          <>
+            <div className="section-title">Parameters</div>
+            {params.map(([name, def]) => (
+              <div className="kv" key={name}>
+                <div className="k">{name}</div>
+                <div className="v">{describeParameter(def)}</div>
+              </div>
+            ))}
+          </>
+        )}
+        {outputs.length > 0 && (
+          <>
+            <div className="section-title">Outputs</div>
+            {outputs.map(([name, def]) => (
+              <div className="kv" key={name}>
+                <div className="k">{name}</div>
+                <div className="v">{describeOutput(def)}</div>
+              </div>
+            ))}
+          </>
+        )}
         <div className="section-title">Full Template</div>
         <JsonBlock value={template} />
       </div>
@@ -262,4 +310,18 @@ function cfnProps(node: VisorNode): Record<string, unknown> | undefined {
 function normalizeDependsOn(dep: string | string[] | undefined): string[] {
   if (!dep) return [];
   return Array.isArray(dep) ? dep : [dep];
+}
+
+function describeParameter(def: unknown): string {
+  const p = def as { Type?: string; Default?: unknown; Description?: string };
+  const parts = [p.Type ?? "String"];
+  if (p.Default !== undefined) parts.push(`default: ${JSON.stringify(p.Default)}`);
+  return parts.join(" · ");
+}
+
+function describeOutput(def: unknown): string {
+  const o = def as { Description?: string; Export?: { Name?: unknown } };
+  if (o.Description) return o.Description;
+  if (o.Export?.Name) return `export: ${JSON.stringify(o.Export.Name)}`;
+  return "—";
 }

@@ -1,21 +1,28 @@
 import type { VisorNode } from "@/lib/model";
 import { resourceKindOf } from "@/lib/icons";
 import { Badge } from "@/components/Badge";
+import { GraphCanvas } from "@/components/GraphCanvas";
+
+export type ViewMode = "cards" | "graph";
 
 export function Canvas({
   focusNode,
   crumbs,
   selectedPath,
+  viewMode,
   onSelect,
   onOpen,
   onCrumb,
+  onViewMode,
 }: {
   focusNode: VisorNode;
   crumbs: VisorNode[];
   selectedPath: string;
+  viewMode: ViewMode;
   onSelect: (n: VisorNode) => void;
   onOpen: (n: VisorNode) => void;
   onCrumb: (n: VisorNode) => void;
+  onViewMode: (m: ViewMode) => void;
 }) {
   return (
     <div className="canvas">
@@ -42,16 +49,32 @@ export function Canvas({
         {focusNode.constructInfo?.fqn && (
           <span className="meta">{focusNode.constructInfo.fqn}</span>
         )}
-        <div className="stat">
-          <span>
-            <b>{focusNode.children.length}</b> children
-          </span>
-          <span>
-            <b>{focusNode.resourceCount}</b> resources
-          </span>
-          <span>
-            <b>{focusNode.descendantCount}</b> total
-          </span>
+        <div className="head-right">
+          <div className="view-toggle">
+            <button
+              className={viewMode === "cards" ? "active" : ""}
+              onClick={() => onViewMode("cards")}
+            >
+              ▦ Cards
+            </button>
+            <button
+              className={viewMode === "graph" ? "active" : ""}
+              onClick={() => onViewMode("graph")}
+            >
+              ⬡ Graph
+            </button>
+          </div>
+          <div className="stat">
+            <span>
+              <b>{focusNode.children.length}</b> children
+            </span>
+            <span>
+              <b>{focusNode.resourceCount}</b> resources
+            </span>
+            <span>
+              <b>{focusNode.descendantCount}</b> total
+            </span>
+          </div>
         </div>
       </div>
 
@@ -60,6 +83,13 @@ export function Canvas({
           <div style={{ fontSize: 30 }}>🍃</div>
           <div>This is a leaf construct — see its details on the right.</div>
         </div>
+      ) : viewMode === "graph" ? (
+        <GraphCanvas
+          focus={focusNode}
+          selectedPath={selectedPath}
+          onSelect={onSelect}
+          onOpen={onOpen}
+        />
       ) : (
         <div className="cards">
           {focusNode.children.map((child) => (

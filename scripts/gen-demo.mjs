@@ -345,6 +345,14 @@ const api = {
                   ResourceId: { Ref: "OrdersApiordersA1B2C3D4" },
                   RestApiId: { Ref: "OrdersApiC1A2B3D4" },
                   AuthorizationType: "NONE",
+                  Integration: {
+                    Type: "AWS_PROXY",
+                    IntegrationHttpMethod: "POST",
+                    Uri: {
+                      "Fn::Sub":
+                        "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${OrderHandler9F8E7D6C.Arn}/invocations",
+                    },
+                  },
                 }, fqn("aws_apigateway", "CfnMethod")),
               ],
             ),
@@ -357,6 +365,14 @@ const api = {
                   ResourceId: { Ref: "OrdersApiordersA1B2C3D4" },
                   RestApiId: { Ref: "OrdersApiC1A2B3D4" },
                   AuthorizationType: "NONE",
+                  Integration: {
+                    Type: "AWS_PROXY",
+                    IntegrationHttpMethod: "POST",
+                    Uri: {
+                      "Fn::Sub":
+                        "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${OrderHandler9F8E7D6C.Arn}/invocations",
+                    },
+                  },
                 }, fqn("aws_apigateway", "CfnMethod")),
               ],
             ),
@@ -371,8 +387,6 @@ const api = {
 const STACKS = [network, api];
 
 /* ----------------------------- generation ------------------------------- */
-
-const cfnShort = (cfnType) => "Cfn" + cfnType.split("::").pop();
 
 function buildTrace(source) {
   if (!source) return undefined;

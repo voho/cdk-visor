@@ -161,7 +161,14 @@
     "RestApiId": {
      "Ref": "OrdersApiC1A2B3D4"
     },
-    "AuthorizationType": "NONE"
+    "AuthorizationType": "NONE",
+    "Integration": {
+     "Type": "AWS_PROXY",
+     "IntegrationHttpMethod": "POST",
+     "Uri": {
+      "Fn::Sub": "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${OrderHandler9F8E7D6C.Arn}/invocations"
+     }
+    }
    },
    "Metadata": {
     "aws:cdk:path": "ApiStack/OrdersApi/orders/GET/Resource"
@@ -177,7 +184,14 @@
     "RestApiId": {
      "Ref": "OrdersApiC1A2B3D4"
     },
-    "AuthorizationType": "NONE"
+    "AuthorizationType": "NONE",
+    "Integration": {
+     "Type": "AWS_PROXY",
+     "IntegrationHttpMethod": "POST",
+     "Uri": {
+      "Fn::Sub": "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${OrderHandler9F8E7D6C.Arn}/invocations"
+     }
+    }
    },
    "Metadata": {
     "aws:cdk:path": "ApiStack/OrdersApi/orders/POST/Resource"
