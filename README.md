@@ -1,1 +1,128 @@
 # cdk-visor
+
+An interactive, fullscreen viewer for **AWS CDK** applications. Start at the
+root construct and browse down through every level of detail — stacks,
+constructs, individual CloudFormation resources, and the source code that
+created them.
+
+![cdk-visor](https://img.shields.io/badge/built%20with-Vite%20%2B%20React%20%2B%20TypeScript-4f9cf9)
+
+## What it does
+
+CDK apps synthesize into a *cloud assembly* (the `cdk.out/` directory). That
+directory holds the construct tree, the manifest, and the generated
+CloudFormation templates — but they're spread across several JSON files and are
+hard to explore by hand. cdk-visor stitches them back together into a single,
+navigable model:
+
+- **Browse the construct tree** from the `App` root down to leaf resources, in a
+  clean breadcrumbed canvas or the collapsible tree explorer.
+- **Inspect any node** — its construct class (jsii fqn), logical id, properties,
+  dependencies, and aggregate resource counts.
+- **Drop down to CloudFormation** — see the exact synthesized resource (or, for
+  a stack, the full template with resource/parameter/output counts).
+- **Jump to source** — when the assembly was synthesized with traces enabled,
+  every resource links back to the line of CDK code that created it, with inline
+  syntax highlighting.
+- **Search everything** (`⌘K` / `Ctrl-K`) by name, path, CloudFormation type, or
+  logical id.
+
+It ships with a built-in demo app (`ShopApp`) so you can try it immediately.
+
+## Quick start
+
+```bash
+npm install
+npm run dev          # open http://localhost:5173
+```
+
+The demo loads automatically. To explore your own app, click **Open project…**
+and pick your project directory (or just the `cdk.out/` folder) — or drag &
+drop it anywhere on the window. Everything is parsed in the browser; nothing is
+uploaded.
+
+```bash
+npm run build        # type-check + production build into dist/
+npm run preview      # serve the production build
+npm run gen:demo     # regenerate the bundled demo assembly
+```
+
+## Pointing it at your CDK app
+
+1. Synthesize your app:
+
+   ```bash
+   cdk synth
+   ```
+
+   This writes `cdk.out/` with `tree.json`, `manifest.json`, and one
+   `*.template.json` per stack.
+
+2. To get **source traces** (the "Source" tab), synthesize with debug tracing
+   on so CDK records where each construct was created:
+
+   ```bash
+   CDK_DEBUG=true cdk synth
+   ```
+
+3. In cdk-visor, click **Open project…** and select your **project root**
+   (recommended — this lets the viewer read both `cdk.out/` *and* your `.ts`
+   sources so traces resolve inline), or just the `cdk.out/` directory.
+
+## Keyboard shortcuts
+
+| Key | Action |
+| --- | --- |
+| `⌘K` / `Ctrl-K` or `/` | Open search |
+| `↑` `↓` `←` `→` | Move selection within the current level |
+| `Enter` | Drill into the selected node |
+| `Esc` / `Backspace` | Go up one level |
+
+## How it works
+
+```
+cdk.out/
+├── tree.json            ← the construct hierarchy (the spine of the model)
+├── manifest.json        ← logical ids + source traces, per stack
+└── *.template.json      ← synthesized CloudFormation, one per stack
+```
+
+The loader reads these artifacts and `buildModel()` (`src/lib/model.ts`) merges
+them into one enriched tree:
+
+- the **construct tree** provides the hierarchy and each node's jsii type;
+- each resource is linked to its **CloudFormation resource** via the
+  `aws:cdk:path` metadata embedded in every template resource;
+- **logical ids and traces** come from the manifest's per-stack metadata.
+
+The result is a single `VisorNode` tree where every node knows its children, its
+CloudFormation output, and where it came from. If a `tree.json` is missing,
+cdk-visor still works by reconstructing a tree from the templates alone.
+
+### Project layout
+
+```
+src/
+├── types/cdk.ts          # types for the cloud-assembly artifacts
+├── lib/
+│   ├── model.ts          # buildModel(): the unified, enriched construct tree
+│   ├── loader.ts         # load demo / directory / drag-drop + source resolution
+│   ├── search.ts         # ranked search over the model
+│   ├── icons.ts          # CFN type → badge label + color
+│   ├── highlight.ts      # tiny JSON + TS syntax highlighters
+│   ├── docs.ts           # jsii fqn → AWS CDK docs URL
+│   └── dnd.ts            # recursive directory drag & drop
+├── components/           # TopBar, TreePanel, Canvas, Inspector, SearchOverlay…
+└── App.tsx               # state + navigation orchestration
+scripts/gen-demo.mjs      # generates the bundled demo cloud assembly + sources
+public/demo/              # the generated demo (cdk.out + src)
+```
+
+## Tech
+
+Vite + React + TypeScript, no UI framework — just a small, dependency-light
+codebase. All parsing and rendering happens client-side.
+
+## License
+
+See [LICENSE](./LICENSE).

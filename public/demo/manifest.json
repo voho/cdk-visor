@@ -1,0 +1,209 @@
+{
+ "version": "39.0.0",
+ "artifacts": {
+  "NetworkStack": {
+   "type": "aws:cloudformation:stack",
+   "environment": "aws://123456789012/eu-central-1",
+   "properties": {
+    "templateFile": "NetworkStack.template.json",
+    "validateOnSynth": false
+   },
+   "displayName": "NetworkStack",
+   "metadata": {
+    "/NetworkStack/ShopVpc/Resource": [
+     {
+      "type": "aws:cdk:logicalId",
+      "data": "ShopVpcE6F71D2A",
+      "trace": [
+       "    at Function.synth (/asset/node_modules/aws-cdk-lib/core/lib/cfn-resource.ts:312:23)",
+       "    at new NetworkStack (/asset/src/network-stack.ts:16:21)",
+       "    at Object.<anonymous> (/asset/src/app.ts:8:1)"
+      ]
+     }
+    ],
+    "/NetworkStack/ShopVpc/PublicSubnet1/Subnet": [
+     {
+      "type": "aws:cdk:logicalId",
+      "data": "ShopVpcPublicSubnet1Subnet5C2D37C4",
+      "trace": [
+       "    at Function.synth (/asset/node_modules/aws-cdk-lib/core/lib/cfn-resource.ts:312:23)",
+       "    at new NetworkStack (/asset/src/network-stack.ts:16:21)",
+       "    at Object.<anonymous> (/asset/src/app.ts:8:1)"
+      ]
+     }
+    ],
+    "/NetworkStack/ShopVpc/PublicSubnet1/RouteTable": [
+     {
+      "type": "aws:cdk:logicalId",
+      "data": "ShopVpcPublicSubnet1RouteTable6C95E38E",
+      "trace": [
+       "    at Function.synth (/asset/node_modules/aws-cdk-lib/core/lib/cfn-resource.ts:312:23)",
+       "    at new NetworkStack (/asset/src/network-stack.ts:16:21)",
+       "    at Object.<anonymous> (/asset/src/app.ts:8:1)"
+      ]
+     }
+    ],
+    "/NetworkStack/ShopVpc/PrivateSubnet1/Subnet": [
+     {
+      "type": "aws:cdk:logicalId",
+      "data": "ShopVpcPrivateSubnet1Subnet5B6ADF1D",
+      "trace": [
+       "    at Function.synth (/asset/node_modules/aws-cdk-lib/core/lib/cfn-resource.ts:312:23)",
+       "    at new NetworkStack (/asset/src/network-stack.ts:16:21)",
+       "    at Object.<anonymous> (/asset/src/app.ts:8:1)"
+      ]
+     }
+    ],
+    "/NetworkStack/ShopVpc/IGW": [
+     {
+      "type": "aws:cdk:logicalId",
+      "data": "ShopVpcIGWB7A2F1C9",
+      "trace": [
+       "    at Function.synth (/asset/node_modules/aws-cdk-lib/core/lib/cfn-resource.ts:312:23)",
+       "    at new NetworkStack (/asset/src/network-stack.ts:16:21)",
+       "    at Object.<anonymous> (/asset/src/app.ts:8:1)"
+      ]
+     }
+    ],
+    "/NetworkStack/ApiSecurityGroup/Resource": [
+     {
+      "type": "aws:cdk:logicalId",
+      "data": "ApiSecurityGroupAFC9D5B2",
+      "trace": [
+       "    at Function.synth (/asset/node_modules/aws-cdk-lib/core/lib/cfn-resource.ts:312:23)",
+       "    at new NetworkStack (/asset/src/network-stack.ts:22:21)",
+       "    at Object.<anonymous> (/asset/src/app.ts:8:1)"
+      ]
+     }
+    ]
+   }
+  },
+  "ApiStack": {
+   "type": "aws:cloudformation:stack",
+   "environment": "aws://123456789012/eu-central-1",
+   "properties": {
+    "templateFile": "ApiStack.template.json",
+    "validateOnSynth": false
+   },
+   "displayName": "ApiStack",
+   "metadata": {
+    "/ApiStack/OrdersTable/Resource": [
+     {
+      "type": "aws:cdk:logicalId",
+      "data": "OrdersTable315BB997",
+      "trace": [
+       "    at Function.synth (/asset/node_modules/aws-cdk-lib/core/lib/cfn-resource.ts:312:23)",
+       "    at new ApiStack (/asset/src/api-stack.ts:22:21)",
+       "    at Object.<anonymous> (/asset/src/app.ts:12:1)"
+      ]
+     }
+    ],
+    "/ApiStack/AssetsBucket/Resource": [
+     {
+      "type": "aws:cdk:logicalId",
+      "data": "AssetsBucket1B2C3D4E",
+      "trace": [
+       "    at Function.synth (/asset/node_modules/aws-cdk-lib/core/lib/cfn-resource.ts:312:23)",
+       "    at new ApiStack (/asset/src/api-stack.ts:29:21)",
+       "    at Object.<anonymous> (/asset/src/app.ts:12:1)"
+      ]
+     }
+    ],
+    "/ApiStack/OrderHandler/ServiceRole/Resource": [
+     {
+      "type": "aws:cdk:logicalId",
+      "data": "OrderHandlerServiceRole8E8B448D",
+      "trace": [
+       "    at Function.synth (/asset/node_modules/aws-cdk-lib/core/lib/cfn-resource.ts:312:23)",
+       "    at new ApiStack (/asset/src/api-stack.ts:35:21)",
+       "    at Object.<anonymous> (/asset/src/app.ts:12:1)"
+      ]
+     }
+    ],
+    "/ApiStack/OrderHandler/Resource": [
+     {
+      "type": "aws:cdk:logicalId",
+      "data": "OrderHandler9F8E7D6C",
+      "trace": [
+       "    at Function.synth (/asset/node_modules/aws-cdk-lib/core/lib/cfn-resource.ts:312:23)",
+       "    at new ApiStack (/asset/src/api-stack.ts:35:21)",
+       "    at Object.<anonymous> (/asset/src/app.ts:12:1)"
+      ]
+     }
+    ],
+    "/ApiStack/OrdersApi/Resource": [
+     {
+      "type": "aws:cdk:logicalId",
+      "data": "OrdersApiC1A2B3D4",
+      "trace": [
+       "    at Function.synth (/asset/node_modules/aws-cdk-lib/core/lib/cfn-resource.ts:312:23)",
+       "    at new ApiStack (/asset/src/api-stack.ts:52:21)",
+       "    at Object.<anonymous> (/asset/src/app.ts:12:1)"
+      ]
+     }
+    ],
+    "/ApiStack/OrdersApi/Deployment/Resource": [
+     {
+      "type": "aws:cdk:logicalId",
+      "data": "OrdersApiDeploymentE5F6A7B8",
+      "trace": [
+       "    at Function.synth (/asset/node_modules/aws-cdk-lib/core/lib/cfn-resource.ts:312:23)",
+       "    at new ApiStack (/asset/src/api-stack.ts:52:21)",
+       "    at Object.<anonymous> (/asset/src/app.ts:12:1)"
+      ]
+     }
+    ],
+    "/ApiStack/OrdersApi/DeploymentStage.prod/Resource": [
+     {
+      "type": "aws:cdk:logicalId",
+      "data": "OrdersApiDeploymentStageprod9C8D7E6F",
+      "trace": [
+       "    at Function.synth (/asset/node_modules/aws-cdk-lib/core/lib/cfn-resource.ts:312:23)",
+       "    at new ApiStack (/asset/src/api-stack.ts:52:21)",
+       "    at Object.<anonymous> (/asset/src/app.ts:12:1)"
+      ]
+     }
+    ],
+    "/ApiStack/OrdersApi/orders/Resource": [
+     {
+      "type": "aws:cdk:logicalId",
+      "data": "OrdersApiordersA1B2C3D4",
+      "trace": [
+       "    at Function.synth (/asset/node_modules/aws-cdk-lib/core/lib/cfn-resource.ts:312:23)",
+       "    at new ApiStack (/asset/src/api-stack.ts:52:21)",
+       "    at Object.<anonymous> (/asset/src/app.ts:12:1)"
+      ]
+     }
+    ],
+    "/ApiStack/OrdersApi/orders/GET/Resource": [
+     {
+      "type": "aws:cdk:logicalId",
+      "data": "OrdersApiordersGETF1E2D3C4",
+      "trace": [
+       "    at Function.synth (/asset/node_modules/aws-cdk-lib/core/lib/cfn-resource.ts:312:23)",
+       "    at new ApiStack (/asset/src/api-stack.ts:52:21)",
+       "    at Object.<anonymous> (/asset/src/app.ts:12:1)"
+      ]
+     }
+    ],
+    "/ApiStack/OrdersApi/orders/POST/Resource": [
+     {
+      "type": "aws:cdk:logicalId",
+      "data": "OrdersApiordersPOSTA5B6C7D8",
+      "trace": [
+       "    at Function.synth (/asset/node_modules/aws-cdk-lib/core/lib/cfn-resource.ts:312:23)",
+       "    at new ApiStack (/asset/src/api-stack.ts:52:21)",
+       "    at Object.<anonymous> (/asset/src/app.ts:12:1)"
+      ]
+     }
+    ]
+   }
+  },
+  "Tree": {
+   "type": "cdk:tree",
+   "properties": {
+    "file": "tree.json"
+   }
+  }
+ }
+}

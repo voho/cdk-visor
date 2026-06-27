@@ -1,0 +1,204 @@
+{
+ "Resources": {
+  "OrdersTable315BB997": {
+   "Type": "AWS::DynamoDB::Table",
+   "Properties": {
+    "KeySchema": [
+     {
+      "AttributeName": "orderId",
+      "KeyType": "HASH"
+     }
+    ],
+    "AttributeDefinitions": [
+     {
+      "AttributeName": "orderId",
+      "AttributeType": "S"
+     }
+    ],
+    "BillingMode": "PAY_PER_REQUEST"
+   },
+   "Metadata": {
+    "aws:cdk:path": "ApiStack/OrdersTable/Resource"
+   }
+  },
+  "AssetsBucket1B2C3D4E": {
+   "Type": "AWS::S3::Bucket",
+   "Properties": {
+    "VersioningConfiguration": {
+     "Status": "Enabled"
+    },
+    "BucketEncryption": {
+     "ServerSideEncryptionConfiguration": [
+      {
+       "ServerSideEncryptionByDefault": {
+        "SSEAlgorithm": "AES256"
+       }
+      }
+     ]
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "ApiStack/AssetsBucket/Resource"
+   }
+  },
+  "OrderHandlerServiceRole8E8B448D": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Version": "2012-10-17",
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "lambda.amazonaws.com"
+       }
+      }
+     ]
+    },
+    "ManagedPolicyArns": [
+     "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "ApiStack/OrderHandler/ServiceRole/Resource"
+   }
+  },
+  "OrderHandler9F8E7D6C": {
+   "Type": "AWS::Lambda::Function",
+   "Properties": {
+    "Runtime": "nodejs20.x",
+    "Handler": "index.handler",
+    "Timeout": 10,
+    "Code": {
+     "ZipFile": "exports.handler = async () => ({ statusCode: 200 });"
+    },
+    "Role": {
+     "Fn::GetAtt": [
+      "OrderHandlerServiceRole8E8B448D",
+      "Arn"
+     ]
+    },
+    "Environment": {
+     "Variables": {
+      "TABLE_NAME": {
+       "Ref": "OrdersTable315BB997"
+      },
+      "ASSETS_BUCKET": {
+       "Ref": "AssetsBucket1B2C3D4E"
+      }
+     }
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "ApiStack/OrderHandler/Resource"
+   },
+   "DependsOn": [
+    "OrderHandlerServiceRole8E8B448D"
+   ]
+  },
+  "OrdersApiC1A2B3D4": {
+   "Type": "AWS::ApiGateway::RestApi",
+   "Properties": {
+    "Name": "Orders Service"
+   },
+   "Metadata": {
+    "aws:cdk:path": "ApiStack/OrdersApi/Resource"
+   }
+  },
+  "OrdersApiDeploymentE5F6A7B8": {
+   "Type": "AWS::ApiGateway::Deployment",
+   "Properties": {
+    "RestApiId": {
+     "Ref": "OrdersApiC1A2B3D4"
+    },
+    "Description": "Automatically created by the RestApi construct"
+   },
+   "Metadata": {
+    "aws:cdk:path": "ApiStack/OrdersApi/Deployment/Resource"
+   }
+  },
+  "OrdersApiDeploymentStageprod9C8D7E6F": {
+   "Type": "AWS::ApiGateway::Stage",
+   "Properties": {
+    "RestApiId": {
+     "Ref": "OrdersApiC1A2B3D4"
+    },
+    "DeploymentId": {
+     "Ref": "OrdersApiDeploymentE5F6A7B8"
+    },
+    "StageName": "prod"
+   },
+   "Metadata": {
+    "aws:cdk:path": "ApiStack/OrdersApi/DeploymentStage.prod/Resource"
+   }
+  },
+  "OrdersApiordersA1B2C3D4": {
+   "Type": "AWS::ApiGateway::Resource",
+   "Properties": {
+    "ParentId": {
+     "Fn::GetAtt": [
+      "OrdersApiC1A2B3D4",
+      "RootResourceId"
+     ]
+    },
+    "PathPart": "orders",
+    "RestApiId": {
+     "Ref": "OrdersApiC1A2B3D4"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "ApiStack/OrdersApi/orders/Resource"
+   }
+  },
+  "OrdersApiordersGETF1E2D3C4": {
+   "Type": "AWS::ApiGateway::Method",
+   "Properties": {
+    "HttpMethod": "GET",
+    "ResourceId": {
+     "Ref": "OrdersApiordersA1B2C3D4"
+    },
+    "RestApiId": {
+     "Ref": "OrdersApiC1A2B3D4"
+    },
+    "AuthorizationType": "NONE"
+   },
+   "Metadata": {
+    "aws:cdk:path": "ApiStack/OrdersApi/orders/GET/Resource"
+   }
+  },
+  "OrdersApiordersPOSTA5B6C7D8": {
+   "Type": "AWS::ApiGateway::Method",
+   "Properties": {
+    "HttpMethod": "POST",
+    "ResourceId": {
+     "Ref": "OrdersApiordersA1B2C3D4"
+    },
+    "RestApiId": {
+     "Ref": "OrdersApiC1A2B3D4"
+    },
+    "AuthorizationType": "NONE"
+   },
+   "Metadata": {
+    "aws:cdk:path": "ApiStack/OrdersApi/orders/POST/Resource"
+   }
+  }
+ },
+ "Outputs": {
+  "OrdersApiEndpoint": {
+   "Description": "Base URL of the Orders REST API",
+   "Value": {
+    "Fn::Join": [
+     "",
+     [
+      "https://",
+      {
+       "Ref": "OrdersApiC1A2B3D4"
+      },
+      ".execute-api.eu-central-1.amazonaws.com/prod/"
+     ]
+    ]
+   }
+  }
+ }
+}
