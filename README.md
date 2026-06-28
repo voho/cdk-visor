@@ -162,8 +162,12 @@ WebView file-access limits); drag-and-drop and the bundled demo work too.
 
 **Prerequisites** (on macOS):
 
-- [Rust](https://www.rust-lang.org/tools/install) (`rustup`)
+- [Rust](https://www.rust-lang.org/tools/install) **≥ 1.88** — if you already have
+  it, run `rustup update stable` (Tauri 2's dependencies need a recent toolchain)
 - Xcode Command Line Tools (`xcode-select --install`)
+
+`src-tauri/Cargo.lock` is committed, so the Rust dependency versions are pinned
+and reproducible.
 
 **Run / build:**
 
