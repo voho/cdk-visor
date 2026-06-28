@@ -1,0 +1,6 @@
+# Make `npm run tauri:dev` / `tauri:build` use a recent stable Rust via rustup.
+# Tauri 2's dependency tree needs rustc >= 1.88 (enforced by `rust-version` in
+# Cargo.toml). rustup selects "stable" here; if yours is older than 1.88, cargo
+# will say so — run `rustup update stable`.
+[toolchain]
+channel = "stable"
